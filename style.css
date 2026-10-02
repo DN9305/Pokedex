@@ -1,0 +1,39 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+main {
+    width: 100%;
+    max-width: 1200px;
+}
+
+.cards-wrapper {
+    width: 100%;
+    padding: 20px;
+
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.card-small {
+    height: 300px;
+    width: 300px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.card-small p {
+    align-self: flex-end;
+}
+
+.card-small h2 {
+    justify-self: flex-end;
+    align-self: flex-start;
+}
+
+.card-small .type{
+    border-radius: 25px;
+}

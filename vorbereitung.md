@@ -17,9 +17,9 @@ graph TD
     B --> C{Suchfeld}
     subgraph Reihe [ ]
         direction LR
-        C--> zusatzinfoName[Wenn nach namen gesucht wird und autocomplete vorhanden sein soll: am anfang bei init ein api fetch aller namen. öffnet GroßeKarte]
+        C--> zusatzinfoName["`Wenn nach namen gesucht wird und autocomplete vorhanden sein soll: am anfang bei init ein api fetch aller namen **CHECKED**`". öffnet GroßeKarte]
 
-        C --> zusatzinfoTypEtc[Wenn nach typ, ability etc gesucht wird, dann muss es für diesen typ ebenfalls eine liste geben für autocomplete. die jeweiligen typen sollten dann eventuell farbig hinterlegt sein im autocomplet]
+        C --> zusatzinfoTypEtc["`Wenn nach typ, ability etc gesucht wird, dann muss es für diesen typ ebenfalls eine liste geben für autocomplete **CHECKED**`". die jeweiligen typen sollten dann eventuell farbig hinterlegt sein im autocomplet]
     end
     B --> D{Pokeindex 20-40}
     D --> Button[Button load and fetch next loadingscreen während dessen nicht anklickbar]
@@ -38,16 +38,18 @@ graph TD
 
 ## Flussdiagramm takeaways:
 
-Beim initialisieren, benötige ich bereits fetches die ausgeführt werden. 
+Beim initialisieren, benötige ich bereits fetches die ausgeführt werden. Fetches geschehen Paralel also Paralele api zugriffe. Promise.all
 
-* 1x für die erten Pokemon im Pokedex evoloution chain
-    * hier ein weiterer fetch für die result url
-* 1x für alle Namen von Pokemon
+* 1x für alle Namen&url von Pokemon
 * 1x für alle Typen von Pokemon
+* 1x für alle Abilities von Pokemon
+* 1x für alle Gender von Pokemon
 
-fetch Daten werden mein hauptarbeits daten sein. Logik baut um diese herum auf für rendern suchen.
 
-* hier am besten destruktion benutzen für bessere übersicht(weniger x[i].[i] etc)`? bisher nicht möglich einfache variablen zuweisung zu x[i] ist einfacher. Was ist der usecase von destruction?
+
+fetched Daten werden mein hauptarbeits daten sein. Logik baut um diese herum auf für rendern suchen.
+
+* hier am besten destruktion benutzen für bessere übersicht(weniger x[i].[i] etc)`? 
 
 ```mermaid
 graph TD
@@ -55,7 +57,7 @@ graph TD
     
     initEndpoints[list of endpoints for Initialization] --> fetchFuncInit(fetchFunction///ÜbergabeParameter = list of endpoints ^)
     fetchFuncInit --> init[INIT FUNCTION]
-    init --> | Es gibt 1 großes cache für Pokemon mit kompletten daten. sowie eine speicher array temporär für suchergebnisse. | renderP{render Pokedex / suchergebnisse}
+    init --> | Es gibt 1 großes cache für Pokemon in der man mit X suchen kann bevor man fetched um nicht doppelt zu fetchen. sowie eine speicher array temporär für suchergebnisse,dieses wird je nach . | renderP{render Pokedex / suchergebnisse}
     init --> | arrays = pokemonnamen, types, abbilities, etc für autocomplete bei der suche| renderS{render suchleiste}
 
    
