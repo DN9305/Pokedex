@@ -6,7 +6,7 @@ let baseURL = "https://pokeapi.co/api/v2/"
 
 ////searchCategroy = name vom ursprungs Endpunkt siehe endpointsDB. 
 ////searchSubCategory = name von dem einzelnen Types, Abilities und Gender der jeweiligen endpoints.
-///////"pokemon" hat searchSubCategory "pokemon", da dessen endpunkt bereits der letzte schritt um die gebrauchten Pokemon aus dessen liste fetchen zu können.
+///////"pokemon" hat searchSubCategory "pokemon", da dessen endpunkt bereits der letzte schritt um die gebrauchten poke aus dessen liste fetchen zu können.
 const user = {
     searchCategory: "type",
     searchSubCategory: "fire",
@@ -19,11 +19,10 @@ async function init() {
         let category = user.searchCategory
         let type = user.searchSubCategory
         await fetchDataForListsDbOnInit(endpointsDB)
-        console.log(pokemonAbilityUrl)
-        loadData(category, type)
-        console.log(endpointTempCache)
-        console.log(pokemonTempCache)
-        loadData(category, type)
+        console.log(pokeAbilityUrl)
+        await loadData(category, "water")
+        await loadData(category, "fire")
+        console.log(pokePersistCache)
     } catch (error) {
         console.error("FETCH-FEHLER:", error)
     }
@@ -50,8 +49,8 @@ function renderCardsSmall() {
     let html = ""
     let offset = user.searchOffsetBefore
     let limit = offset + 20
-    for (let i = offset; i < limit && i < pokemonTempCache.length; i++) {
-        let data = pokemonTempCache[i]
+    for (let i = offset; i < limit && i < pokeTempCache.length; i++) {
+        let data = pokeTempCache[i]
         html += getTemplateCardsSmall(data)
     }
     document.getElementById(main).innerHTML = html
@@ -61,9 +60,8 @@ function renderCardsSmall() {
 //LIST-FUNCTIONS
 ////////////////
 
-function loadData(searchCategory, searchSubCategory = "pokemon") {
-    fetchDataIntoTempCache(searchCategory, searchSubCategory)
-
+async function loadData(searchCategory, searchSubCategory = "poke") {
+    return fetchDataIntoTempCache(searchCategory, searchSubCategory)
 }
 
 async function fetchDataIntoTempCache(searchCategory, searchSubCategory) {
@@ -76,11 +74,11 @@ async function fetchDataIntoTempCache(searchCategory, searchSubCategory) {
 
     if (searchCategory === "pokemon") {
         let list = endpointsDB[index].list
-        getDataLazyLoading(list, latestOffset, limit)
+        await getDataLazyLoading(list, latestOffset, limit)
     } else {
         let list = endpointsDB[index].cache
-        await preparePokemonListFromsearchSubCategory(index, searchSubCategory, list)
-        getDataLazyLoading(list, latestOffset, limit)
+        await preparePokeListFromsearchSubCategory(index, searchSubCategory, list)
+        await getDataLazyLoading(list, latestOffset, limit)
     }
 }
 
@@ -111,15 +109,15 @@ async function getDataLazyLoading(list, count, limit) {
 
     let result = await Promise.all(promises)
     for (let i = 0; i < result.length; i++) {
-        pokemonTempCache.push(result[i])
+        pokeTempCache.push(result[i])
     }
 }
 
-async function preparePokemonListFromsearchSubCategory(indexEndpointDB, searchSubCategory, cache) {
+async function preparePokeListFromsearchSubCategory(indexEndpointDB, searchSubCategory, cache) {
     let list = endpointsDB[indexEndpointDB].list
     let indexList = list.findIndex(element => element.name === searchSubCategory)
     let url = list[indexList].url
-    return fillList(url, cache)
+    return await fillList(url, cache)
 }
 
 function setUserSearchStatus(searchCategory, searchSubCategory) {
@@ -129,9 +127,10 @@ function setUserSearchStatus(searchCategory, searchSubCategory) {
 }
 
 function clearUserSearchData(searchSubCategory) {
-    if (searchSubCategory !== user.searchCategory) {
+    if (searchSubCategory !== user.searchSubCategory) {
         setUserSearchOffset(0, 0)
-        clearPokemonTempCache()
+        savePokeTempCacheToPersistCache()
+        clearPokeTempCache()
     }
 }
 
@@ -140,9 +139,19 @@ function setUserSearchOffset(searchOffsetLatest, searchOffsetBefore) {
     user.searchOffsetBefore = searchOffsetBefore
 }
 
-function clearPokemonTempCache() {
-    pokemonTempCache.length = 0
+function savePokeTempCacheToPersistCache(){
+    pokeTempCache.forEach(element => {
+        let index =element.id
+        if (pokePersistCache[index] === undefined){
+        pokePersistCache[index] = element}})
 }
+
+function clearPokeTempCache() {
+    endpointTempCache.length = 0
+    pokeTempCache.length = 0
+}
+
+
 
 //init-HELPFUNCTIONS//
 
@@ -158,7 +167,7 @@ async function fillList(url, listArrayDB, fetchStyle = "lazy") {
     }
     if (result.next && fetchStyle === "eager") {
         let endpointNext = result.next
-        await fillList(endpointNext, listArrayDB)
+        await fillList(endpointNext, listArrayDB, fetchStyle)
     }
 }
 
@@ -169,7 +178,7 @@ function transformResultByStructure(result) {
         result.results.forEach(element => results.push({ name: element.name, url: element.url }))
     } else if (result.pokemon) {
         result.pokemon.forEach(element => results.push({ name: element.pokemon.name, url: element.pokemon.url }))
-    } else if (result.pokemon_species_details) {
+    } else if (result.poke_species_details) {
         result.pokemon_species_details.forEach(element => results.push({ name: element.pokemon_species.name, url: element.pokemon_species.url }))
     }
     return results

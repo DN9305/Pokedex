@@ -1,12 +1,12 @@
-const pokemonTempCache = []
-const pokemonPersistCache = []
-const pokemonNamesUrl = []
-const pokemonTypesUrl = []
-const pokemonGenderUrl = []
-const pokemonAbilityUrl = []
+const pokePersistCache = new Array(1000)
+const pokeTempCache = []
+const pokeNamesUrl = []
+const pokeTypesUrl = []
+const pokeGenderUrl = []
+const pokeAbilityUrl = []
 const endpointTempCache = []
 const endpointsDB = [
-    ///gibt die namen aller Pokemon aus sowie die url zum einzelnen Pokemon
+    ///gibt die namen aller poke aus sowie die url zum einzelnen poke
     ///****ZÄHLT AUCH FÜR endpointTempCache!!!
     //////list_URL: weiterführende Key chains:
     /////////Order/ID: number //Order wäre besser als ID weil es der Tatsächlichen etnwicklungs reihenfolge folgt.
@@ -19,7 +19,7 @@ const endpointsDB = [
     /////////Sprites: sprites: {} -> front_default: "string"
     {
         endpoint: "pokemon",
-        list: pokemonNamesUrl,
+        list: pokeNamesUrl,
         limitList: 500,
         limitSort: 20,
         useCaseList: true,
@@ -27,10 +27,10 @@ const endpointsDB = [
     },
     ///gibt die namen aller Types aus sowie die url zum einzelnen Type
     //////list_URL: weiterführende Key chains:
-    /////////Pokemon: pokemon: [] -> index: {} -> pokemon: {} -> name, url
+    /////////pokemon: pokemon: [] -> index: {} -> poke: {} -> name, url
     {
         endpoint: "type",
-        list: pokemonTypesUrl,
+        list: pokeTypesUrl,
         limitList: 500,
         limitSort: 20,
         useCaseList: true,
@@ -40,10 +40,10 @@ const endpointsDB = [
     },
     ///gibt die namen aller Gender aus sowie die url zum einzelnen Gender
     //////list_URL: weiterführende Key chains: 
-    /////////Pokemon: pokemon_species_details: [] -> index: {} -> pokemon_species: {} -> name, url
+    /////////poke: pokemon_species_details: [] -> index: {} -> pokemon_species: {} -> name, url
     {
         endpoint: "gender",
-        list: pokemonGenderUrl,
+        list: pokeGenderUrl,
         limitList: 10,
         limitSort: 20,
         useCaseList: true,
@@ -53,10 +53,10 @@ const endpointsDB = [
     },
     ///gibt die namen aller abilities aus sowie die url zur einzelnen Ability
     //////list_URL: weiterführende Key chains: 
-    //////////Pokemon: pokemon: [] -> index: {} -> pokemon: {} -> name, url
+    //////////poke: pokemon: [] -> index: {} -> pokemon: {} -> name, url
     {
         endpoint: "ability",
-        list: pokemonAbilityUrl,
+        list: pokeAbilityUrl,
         limitList: 500,
         limitSort: 20,
         useCaseList: true,
