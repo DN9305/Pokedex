@@ -23,6 +23,8 @@ main {
 
     display: flex;
     flex-direction: column;
+
+    cursor: pointer;
 }
 
 .card-small p {
