@@ -9,7 +9,7 @@ const user = {
     searchSubCategory: "pokemon",
     searchOffsetBefore: 0,
     searchOffsetLatest: 0,
-    loadedBatch: 0
+    batchID: 0
 }
 
 /////////////////
@@ -20,7 +20,9 @@ async function init() {
     try {
         let { searchCategory, searchSubCategory } = user
         await fetchDataForListsDbOnInit(endpointsDB)
+        renderOnInit()
         await loadAndShowData(searchCategory, searchSubCategory)
+
     } catch (error) {
         console.error("FETCH-FEHLER:", error)
     }
@@ -31,13 +33,56 @@ async function init() {
 ////////////////
 
 async function loadAndShowData(searchCategory, searchSubCategory = "pokemon") {
+    renderAndShowLoadingScreen()
     await fetchDataIntoTempCache(searchCategory, searchSubCategory)
-    renderOnInit(searchCategory)
+    renderCardsSmall(searchCategory, searchSubCategory)
 }
 
-async function laodMore(){
+async function laodMore() {
+    renderAndShowLoadingScreen()
     await fetchDataIntoTempCache(user.searchCategory, user.searchSubCategory)
-    renderCardsSmall(user.searchCategory)
+    renderCardsSmall(user.searchCategory, user.searchSubCategory)
+}
+
+function findPokemonFromArray(inputValue) {
+    let searchArrays = [pokeGenderUrl, pokeTypesUrl, pokeAbilityUrl, pokeNamesUrl]
+    let outputArray = []
+    let idCount = 0
+    for (let i = 0; i < searchArrays.length; i++) {
+        let array = searchArrays[i]
+        let result = array.filter(filterArrayForName, inputValue)
+        result.forEach(element => { element.id = idCount; idCount++ })
+        outputArray.push(...result)
+    }
+
+    resultOutputToUser(outputArray)
+}
+
+async function resultOutputToUser(result) {
+    if (result.length == 1 && result[0].category == "pokemon") {
+        let pokemonData = await getPokemonData(result[0].name, result[0].url)
+        renderCardBig(pokemonData, true)
+        chosenSearchResult(element.category, element.name, element.url)
+    } else {
+        renderSearchResults(result)
+    }
+}
+
+async function getPokemonData(name, url) {
+    let results = pokePersistCache.filter(element => element.name.includes(name))
+    let pokemonData = {}
+    if (results.length) {
+        pokemonData = results[0]
+        return pokemonData
+    } else {
+        pokemonData = await fetchUrl(url)
+        return pokemonData
+    }
+
+}
+
+function filterArrayForName(element) {
+    return element.name.includes(this)
 }
 
 /////////////////
@@ -76,8 +121,8 @@ function clearUserSearchData(searchSubCategory) {
     }
 }
 
-function resetUserBatchesLoaded(){
-    user.loadedBatch = 0
+function resetUserBatchesLoaded() {
+    user.batchID = 0
 }
 function setUserSearchOffset(searchOffsetLatest, searchOffsetBefore) {
     user.searchOffsetLatest = searchOffsetLatest
@@ -99,6 +144,7 @@ function savePokeTempCacheToPersistCache() {
 function clearPokeTempCache() {
     endpointTempCache.length = 0
     pokeTempCache.length = 0
+    document.getElementById("cards").innerHTML = ""
 }
 
 
@@ -120,6 +166,13 @@ async function fetchDataLazyLoading(list, latestOffset, limit) {
         let url = list[i].url
         promises.push(fetchUrl(url))
     }
+
+    setUserSearchOffset(conditionLimit, count)
+
+    let result = await Promise.all(promises)
+    for (let i = 0; i < result.length; i++) {
+        result[i] = pokeTempCache.push(result[i])
+    }
 }
 
 /////////////////
@@ -133,25 +186,25 @@ async function fetchDataForListsDbOnInit(endpoints) {
         if (endpoints[i].useCaseList) {
             let { endpoint, list, limitList } = endpoints[i]
             let endpointURL = baseURL + endpoint + `?limit=${limitList}`
-            promises.push(fillArray(endpointURL, list, fetchStyle))
+            promises.push(fillArray(endpointURL, list, fetchStyle, endpoint))
         }
     }
     await Promise.all(promises)
 }
 
-async function fillArray(url, listArrayDB, fetchStyle = "lazy") {
+async function fillArray(url, listArrayDB, fetchStyle = "lazy", endpoint = "pokemon") {
     let result = await fetchUrl(url)
 
     let newResults = transformResultByStructure(result)
-
     for (let i = 0; i < newResults.length; i++) {
         let name = newResults[i].name
         let url = newResults[i].url
-        listArrayDB.push({ name: name, url: url })
+        let category = endpoint
+        listArrayDB.push({ name: name, url: url, category: category })
     }
     if (result.next && fetchStyle === "eager") {
         let endpointNext = result.next
-        await fillArray(endpointNext, listArrayDB, fetchStyle)
+        await fillArray(endpointNext, listArrayDB, fetchStyle, endpoint)
     }
 }
 
@@ -171,7 +224,6 @@ async function fetchUrl(url) {
 ///um auf die pokemon Daten zugreifen zu können.
 function transformResultByStructure(result) {
     let results = []
-
     if (result.results) {
         result.results.forEach(element => results.push({ name: element.name, url: element.url }))
     } else if (result.pokemon) {

@@ -14,9 +14,9 @@ function getTemplateCardsSmall(pokemonData) {
     `
 }
 
-function getTemplateCardsSmallBatch(batchID){
+function getTemplateCardsSmallBatch(batchID) {
     return /*html*/`
-        <div id="batch-${batchID}">
+        <div clas="batch" id="batch-${batchID}">
 
         </div>
     `
@@ -32,6 +32,7 @@ function getTemplateCardsTypes(pokemonDataType) {
 
 function getTemplateStructureCardBig() {
     return /*html*/`    
+        <button id="close-button">X</button>
             <div class= "big-card-wrapper">
                 <section id="header-card-big">    
                 </section>
@@ -107,8 +108,71 @@ function getTemplateStats(name, base_stat) {
     `
 }
 
-function getTemplateLoadMoreButton(){
+function getTemplateLoadMoreButton() {
     return /*html*/`
         <button class="load-more" id="load-more">LOAD MORE HERE</button>
+    `
+}
+
+function getTemplateSearchSection() {
+    return /*html*/`
+        <input type="text" id="input" placeholder="Name/Gender/Type/Ability">
+        <button id="search-button">Search</button>
+    `
+}
+
+function getTemplateSearchResultsStructure() {
+    return /*html*/`
+        <button id="close-button-results-dialog">X</button>
+        <div>
+            <div id="hide-type" class="search-results hide">
+                <h3>Type</h3>
+                <div id="search-results-type">
+
+                </div>
+            </div>
+            <div id="hide-gender" class="search-results hide">
+                <h3>Gender</h3>
+                <div id="search-results-gender">
+
+                </div>
+            </div>
+            <div id="hide-ability" class="search-results hide">
+                <h3>Ability</h3>
+                <div id="search-results-ability">
+
+                </div>
+            </div>
+            <div id="hide-pokemon" class="search-results hide">
+                <h3>Pokemon</h3>
+                <div id="search-results-pokemon">
+
+                </div>
+            </div>
+        </div>
+    `
+}
+
+function getTemplateSearchFailed() {
+    return /*html*/`
+            <p>Search Failed<br>Please try another keyword!</p>    
+            <button id="close-button-fail-result">close</button>
+    `
+}
+
+function getTemplateChooseFromSearchResult(resultElement) {
+    return /*html*/`
+        <div id="chosen-result-${resultElement.id}">
+            <p>Name: <span id="searchSubCategory-${resultElement.id}">${resultElement.name}</span></p>
+        </div>
+    `
+}
+
+function getTemplateLoadingScreen() {
+    return /*html*/`
+        <div id="loading-screen">
+            <div class="spinner"></div>
+            <p>Lädt...</p>
+        </div>
     `
 }

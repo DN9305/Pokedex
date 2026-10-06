@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+.hide {
+    display: none;
+}
+
 main {
     width: 100%;
     max-width: 1200px;
@@ -38,4 +42,13 @@ main {
 
 .card-small .type{
     border-radius: 25px;
+}
+
+dialog[open]{
+    margin: auto;
+}
+
+.batch {
+    width: 200px;
+    height: 100px;
 }
