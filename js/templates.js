@@ -16,7 +16,7 @@ function getTemplateCardsSmall(pokemonData) {
 
 function getTemplateCardsSmallBatch(batchID) {
     return /*html*/`
-        <div clas="batch" id="batch-${batchID}">
+        <div class="batch" id="batch-${batchID}">
 
         </div>
     `
